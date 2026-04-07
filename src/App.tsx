@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Profiles from "./pages/Profiles";
+import ProfileDetail from "./pages/ProfileDetail"; // <-- Imported new page
 import Projects from "./pages/Projects";
 import Opportunities from "./pages/Opportunities";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/profiles" element={<Profiles />} />
+              <Route path="/profile/:username" element={<ProfileDetail />} /> {/* <-- Added new route */}
               <Route path="/projects" element={<Projects />} />
               <Route path="/opportunities" element={<Opportunities />} />
               <Route path="*" element={<NotFound />} />
