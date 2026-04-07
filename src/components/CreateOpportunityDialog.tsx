@@ -21,9 +21,17 @@ const CreateOpportunityDialog = () => {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [link, setLink] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => { setTitle(""); setType("hackathon"); setDescription(""); setTags(""); setDeadline(""); };
+  const reset = () => { 
+    setTitle(""); 
+    setType("hackathon"); 
+    setDescription(""); 
+    setTags(""); 
+    setDeadline(""); 
+    setLink(""); 
+  };
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen && !user) { navigate("/auth"); return; }
@@ -38,7 +46,14 @@ const CreateOpportunityDialog = () => {
     const tagList = tags.split(",").map(s => s.trim()).filter(Boolean).slice(0, 10);
     setSubmitting(true);
     try {
-      await addOpportunity({ title: t, type, description: d, tags: tagList, deadline: deadline || undefined });
+      await addOpportunity({ 
+        title: t, 
+        type, 
+        description: d, 
+        tags: tagList, 
+        deadline: deadline || undefined,
+        link: link.trim() || undefined
+      });
       toast.success("Opportunity posted!");
       reset();
       setOpen(false);
@@ -82,6 +97,10 @@ const CreateOpportunityDialog = () => {
           <div className="space-y-1.5">
             <Label htmlFor="opp-deadline">Deadline</Label>
             <Input id="opp-deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="opp-link">External Link <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Input id="opp-link" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://..." type="url" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="opp-tags">Tags <span className="text-xs text-muted-foreground">(comma-separated)</span></Label>
