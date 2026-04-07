@@ -62,6 +62,7 @@ export type Database = {
           tags: string[] | null
           title: string
           type: string
+          link: string | null
         }
         Insert: {
           created_at?: string
@@ -72,6 +73,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           type?: string
+          link?: string | null
         }
         Update: {
           created_at?: string
@@ -82,6 +84,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           type?: string
+          link?: string | null
         }
         Relationships: [
           {
@@ -179,6 +182,7 @@ export type Database = {
           status: string
           tech_stack: string[] | null
           title: string
+          link: string | null
         }
         Insert: {
           created_at?: string
@@ -190,6 +194,7 @@ export type Database = {
           status?: string
           tech_stack?: string[] | null
           title: string
+          link?: string | null
         }
         Update: {
           created_at?: string
@@ -201,6 +206,7 @@ export type Database = {
           status?: string
           tech_stack?: string[] | null
           title?: string
+          link?: string | null
         }
         Relationships: [
           {
