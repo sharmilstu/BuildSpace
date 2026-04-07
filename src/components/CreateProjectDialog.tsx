@@ -20,9 +20,10 @@ const CreateProjectDialog = () => {
   const [description, setDescription] = useState("");
   const [techStack, setTechStack] = useState("");
   const [maxMembers, setMaxMembers] = useState("4");
+  const [link, setLink] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => { setTitle(""); setDescription(""); setTechStack(""); setMaxMembers("4"); };
+  const reset = () => { setTitle(""); setDescription(""); setTechStack(""); setMaxMembers("4"); setLink(""); };
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen && !user) { navigate("/auth"); return; }
@@ -38,7 +39,13 @@ const CreateProjectDialog = () => {
     if (techs.length === 0) { toast.error("Please add at least one technology."); return; }
     setSubmitting(true);
     try {
-      await addProject({ title: t, description: d, tech_stack: techs, max_members: parseInt(maxMembers) });
+      await addProject({ 
+        title: t, 
+        description: d, 
+        tech_stack: techs, 
+        max_members: parseInt(maxMembers),
+        link: link.trim() || undefined
+      });
       toast.success("Project created!");
       reset();
       setOpen(false);
@@ -70,6 +77,10 @@ const CreateProjectDialog = () => {
           <div className="space-y-1.5">
             <Label htmlFor="proj-tech">Tech Stack * <span className="text-xs text-muted-foreground">(comma-separated)</span></Label>
             <Input id="proj-tech" value={techStack} onChange={(e) => setTechStack(e.target.value)} placeholder="React, Node.js, PostgreSQL" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="proj-link">External Link <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Input id="proj-link" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://github.com/..." type="url" />
           </div>
           <div className="space-y-1.5">
             <Label>Team Size</Label>
