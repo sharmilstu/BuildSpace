@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
@@ -16,9 +16,9 @@ interface DataStore {
   feedItems: FeedItem[];
   loading: boolean;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
-  addProject: (project: { title: string; description: string; tech_stack: string[]; max_members: number }) => Promise<void>;
+  addProject: (project: { title: string; description: string; tech_stack: string[]; max_members: number; link?: string }) => Promise<void>;
   joinProject: (projectId: string) => Promise<void>;
-  addOpportunity: (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string }) => Promise<void>;
+  addOpportunity: (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string; link?: string }) => Promise<void>;
 }
 
 const DataContext = createContext<DataStore | null>(null);
@@ -81,7 +81,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     queryClient.invalidateQueries({ queryKey: ["profiles"] });
   };
 
-  const addProject = async (project: { title: string; description: string; tech_stack: string[]; max_members: number }) => {
+  const addProject = async (project: { title: string; description: string; tech_stack: string[]; max_members: number; link?: string }) => {
     if (!user) throw new Error("Not authenticated");
     const { error } = await supabase.from("projects").insert({
       ...project,
@@ -103,7 +103,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     invalidateAll();
   };
 
-  const addOpportunity = async (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string }) => {
+  const addOpportunity = async (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string; link?: string }) => {
     if (!user) throw new Error("Not authenticated");
     const { error } = await supabase.from("opportunities").insert({
       ...opp,
