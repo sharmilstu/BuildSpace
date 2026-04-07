@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Code2, Users, FolderKanban, Megaphone, LayoutDashboard, LogOut, LogIn } from "lucide-react";
+import { Code2, Users, FolderKanban, Megaphone, LayoutDashboard, LogOut, LogIn, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
 
 const navItems = [
   { to: "/", label: "Feed", icon: LayoutDashboard },
@@ -14,6 +15,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
@@ -44,6 +46,18 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Theme Toggle Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="mr-1"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+
           {user ? (
             <div className="flex items-center gap-2">
               <img
