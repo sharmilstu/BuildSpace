@@ -1,7 +1,7 @@
 import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, UserPlus } from "lucide-react";
+import { Users, UserPlus, ExternalLink } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -52,7 +52,14 @@ const ProjectCard = ({ project }: { project: Project }) => {
     <div className="group rounded-lg border bg-card p-5 transition-shadow hover:shadow-md animate-fade-in">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="font-heading text-sm font-semibold">{project.title}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-heading text-sm font-semibold">{project.title}</h3>
+            {project.link && (
+              <a href={project.link} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
         </div>
         <Badge variant="outline" className={`shrink-0 text-xs font-normal ${statusStyles[project.status] ?? ""}`}>
