@@ -1,99 +1,123 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import {
-  developers as initialDevs,
-  projects as initialProjects,
-  opportunities as initialOpps,
-  feedItems as initialFeed,
-  type Developer,
-  type Project,
-  type Opportunity,
-  type FeedItem,
-} from "@/data/mockData";
+import React, { createContext, useContext } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Profile = Tables<"profiles">;
+type Project = Tables<"projects">;
+type Opportunity = Tables<"opportunities">;
+type FeedItem = Tables<"feed_items"> & { author?: Pick<Profile, "name" | "avatar_url"> | null };
 
 interface DataStore {
-  developers: Developer[];
+  developers: Profile[];
   projects: Project[];
   opportunities: Opportunity[];
   feedItems: FeedItem[];
-  addDeveloper: (dev: Omit<Developer, "id">) => void;
-  updateDeveloper: (id: string, dev: Partial<Developer>) => void;
-  addProject: (project: Omit<Project, "id" | "createdAt">) => void;
-  joinProject: (projectId: string, userName: string) => void;
-  addOpportunity: (opp: Omit<Opportunity, "id" | "createdAt">) => void;
+  loading: boolean;
+  updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  addProject: (project: { title: string; description: string; tech_stack: string[]; max_members: number }) => Promise<void>;
+  joinProject: (projectId: string) => Promise<void>;
+  addOpportunity: (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string }) => Promise<void>;
 }
 
 const DataContext = createContext<DataStore | null>(null);
 
-function loadFromStorage<T>(key: string, fallback: T): T {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
-  const [developers, setDevelopers] = useState<Developer[]>(() => loadFromStorage("bs_devs", initialDevs));
-  const [projects, setProjects] = useState<Project[]>(() => loadFromStorage("bs_projects", initialProjects));
-  const [opportunities, setOpportunities] = useState<Opportunity[]>(() => loadFromStorage("bs_opps", initialOpps));
-  const [feedItems, setFeedItems] = useState<FeedItem[]>(() => loadFromStorage("bs_feed", initialFeed));
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  useEffect(() => { localStorage.setItem("bs_devs", JSON.stringify(developers)); }, [developers]);
-  useEffect(() => { localStorage.setItem("bs_projects", JSON.stringify(projects)); }, [projects]);
-  useEffect(() => { localStorage.setItem("bs_opps", JSON.stringify(opportunities)); }, [opportunities]);
-  useEffect(() => { localStorage.setItem("bs_feed", JSON.stringify(feedItems)); }, [feedItems]);
+  const { data: developers = [], isLoading: loadingDevs } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Profile[];
+    },
+  });
 
-  const addFeedItem = useCallback((type: FeedItem["type"], title: string, description: string, author: string, tags: string[]) => {
-    const item: FeedItem = {
-      id: crypto.randomUUID(),
-      type,
-      title,
-      description,
-      author,
-      authorAvatar: `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(author)}`,
-      timestamp: "Just now",
-      tags,
-    };
-    setFeedItems((prev) => [item, ...prev]);
-  }, []);
+  const { data: projects = [], isLoading: loadingProjects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Project[];
+    },
+  });
 
-  const addDeveloper = useCallback((dev: Omit<Developer, "id">) => {
-    const newDev: Developer = { ...dev, id: crypto.randomUUID() };
-    setDevelopers((prev) => [newDev, ...prev]);
-    addFeedItem("team-update", `${newDev.name} joined BuildSpace`, `Welcome ${newDev.name}! They're skilled in ${newDev.skills.slice(0, 3).join(", ")}.`, newDev.name, newDev.skills.slice(0, 2));
-  }, [addFeedItem]);
+  const { data: opportunities = [], isLoading: loadingOpps } = useQuery({
+    queryKey: ["opportunities"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("opportunities").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Opportunity[];
+    },
+  });
 
-  const updateDeveloper = useCallback((id: string, updates: Partial<Developer>) => {
-    setDevelopers((prev) => prev.map((d) => (d.id === id ? { ...d, ...updates } : d)));
-  }, []);
+  const { data: feedItems = [], isLoading: loadingFeed } = useQuery({
+    queryKey: ["feed_items"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_items")
+        .select("*, author:profiles!feed_items_author_id_fkey(name, avatar_url)")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data as FeedItem[];
+    },
+  });
 
-  const addProject = useCallback((project: Omit<Project, "id" | "createdAt">) => {
-    const newProject: Project = { ...project, id: crypto.randomUUID(), createdAt: new Date().toISOString().split("T")[0] };
-    setProjects((prev) => [newProject, ...prev]);
-    addFeedItem("project", `New project: ${newProject.title}`, newProject.description, newProject.owner, newProject.techStack.slice(0, 2));
-  }, [addFeedItem]);
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["profiles"] });
+    queryClient.invalidateQueries({ queryKey: ["projects"] });
+    queryClient.invalidateQueries({ queryKey: ["opportunities"] });
+    queryClient.invalidateQueries({ queryKey: ["feed_items"] });
+  };
 
-  const joinProject = useCallback((projectId: string, userName: string) => {
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === projectId && p.members < p.maxMembers) {
-          addFeedItem("team-update", `${userName} joined ${p.title}`, `${p.title} now has ${p.members + 1}/${p.maxMembers} members.`, userName, p.techStack.slice(0, 2));
-          return { ...p, members: p.members + 1 };
-        }
-        return p;
-      })
-    );
-  }, [addFeedItem]);
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!user) throw new Error("Not authenticated");
+    const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ["profiles"] });
+  };
 
-  const addOpportunity = useCallback((opp: Omit<Opportunity, "id" | "createdAt">) => {
-    const newOpp: Opportunity = { ...opp, id: crypto.randomUUID(), createdAt: new Date().toISOString().split("T")[0] };
-    setOpportunities((prev) => [newOpp, ...prev]);
-    addFeedItem("opportunity", newOpp.title, newOpp.description, newOpp.postedBy, newOpp.tags.slice(0, 2));
-  }, [addFeedItem]);
+  const addProject = async (project: { title: string; description: string; tech_stack: string[]; max_members: number }) => {
+    if (!user) throw new Error("Not authenticated");
+    const { error } = await supabase.from("projects").insert({
+      ...project,
+      owner_id: user.id,
+      members: 1,
+      status: "open",
+    });
+    if (error) throw error;
+    invalidateAll();
+  };
+
+  const joinProject = async (projectId: string) => {
+    if (!user) throw new Error("Not authenticated");
+    const { error } = await supabase.from("project_members").insert({
+      project_id: projectId,
+      user_id: user.id,
+    });
+    if (error) throw error;
+    invalidateAll();
+  };
+
+  const addOpportunity = async (opp: { title: string; type: string; description: string; tags: string[]; deadline?: string }) => {
+    if (!user) throw new Error("Not authenticated");
+    const { error } = await supabase.from("opportunities").insert({
+      ...opp,
+      posted_by: user.id,
+      deadline: opp.deadline || null,
+    });
+    if (error) throw error;
+    invalidateAll();
+  };
+
+  const loading = loadingDevs || loadingProjects || loadingOpps || loadingFeed;
 
   return (
-    <DataContext.Provider value={{ developers, projects, opportunities, feedItems, addDeveloper, updateDeveloper, addProject, joinProject, addOpportunity }}>
+    <DataContext.Provider value={{ developers, projects, opportunities, feedItems, loading, updateProfile, addProject, joinProject, addOpportunity }}>
       {children}
     </DataContext.Provider>
   );

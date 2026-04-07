@@ -1,13 +1,15 @@
-import type { Developer } from "@/data/mockData";
+import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
-import { Github, Linkedin } from "lucide-react";
+import { Github } from "lucide-react";
 
-const ProfileCard = ({ developer }: { developer: Developer }) => {
+type Profile = Tables<"profiles">;
+
+const ProfileCard = ({ developer }: { developer: Profile }) => {
   return (
     <div className="group rounded-lg border bg-card p-5 transition-shadow hover:shadow-md animate-fade-in">
       <div className="flex items-start gap-4">
         <img
-          src={developer.avatar}
+          src={developer.avatar_url || `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(developer.name)}`}
           alt={developer.name}
           className="h-12 w-12 rounded-full bg-secondary"
         />
@@ -22,32 +24,32 @@ const ProfileCard = ({ developer }: { developer: Developer }) => {
               <Github className="h-3.5 w-3.5" />
             </a>
           )}
-          {developer.linkedin && (
-            <a href={`https://linkedin.com/in/${developer.linkedin}`} target="_blank" rel="noreferrer"
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-              <Linkedin className="h-3.5 w-3.5" />
-            </a>
-          )}
         </div>
       </div>
 
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{developer.bio}</p>
+      {developer.bio && (
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{developer.bio}</p>
+      )}
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {developer.skills.map((skill) => (
-          <Badge key={skill} variant="secondary" className="text-xs font-normal">
-            {skill}
-          </Badge>
-        ))}
-      </div>
+      {developer.skills && developer.skills.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {developer.skills.map((skill) => (
+            <Badge key={skill} variant="secondary" className="text-xs font-normal">
+              {skill}
+            </Badge>
+          ))}
+        </div>
+      )}
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {developer.interests.map((interest) => (
-          <Badge key={interest} variant="outline" className="text-xs font-normal text-muted-foreground">
-            {interest}
-          </Badge>
-        ))}
-      </div>
+      {developer.interests && developer.interests.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {developer.interests.map((interest) => (
+            <Badge key={interest} variant="outline" className="text-xs font-normal text-muted-foreground">
+              {interest}
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
