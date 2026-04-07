@@ -1,11 +1,19 @@
-import { opportunities } from "@/data/mockData";
+import { useData } from "@/context/DataContext";
 import OpportunityCard from "@/components/OpportunityCard";
+import CreateOpportunityDialog from "@/components/CreateOpportunityDialog";
 
 const Opportunities = () => {
+  const { opportunities } = useData();
+
   return (
-    <div className="container py-8">
-      <h1 className="font-heading text-2xl font-bold tracking-tight">Opportunities</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Hackathons, open source, internships, and more.</p>
+    <div className="container py-6 sm:py-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Opportunities</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Hackathons, open source, internships, and more.</p>
+        </div>
+        <CreateOpportunityDialog />
+      </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {opportunities.map((opp, i) => (
