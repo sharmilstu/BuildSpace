@@ -1,50 +1,50 @@
-BuildSpace - Developer Collaboration Platform
-Live Demo on Vercel
+# BuildSpace - Developer Collaboration Platform
 
-BuildSpace is a responsive web application designed to unify the fragmented student developer ecosystem. It brings together professional profiles, project collaboration, and opportunity discovery into a single, interactive platform.
+[BuildSpace](https://build-space-sage.vercel.app/) is a responsive web application designed to unify the fragmented student developer ecosystem. It brings together professional profiles, project collaboration, and opportunity discovery into a single, interactive platform.
 
-🛠️ Tech Stack
-Frontend: React 18, Vite, TypeScript.
+[Live Demo](https://build-space-sage.vercel.app/)
 
-Styling: Tailwind CSS, Shadcn UI, Radix UI.
+---
 
-Backend & Database: Supabase with PostgreSQL database.
+## 🛠️ Tech Stack
 
-State Management: TanStack Query (React Query).
+* **Frontend:** React 18, Vite, TypeScript
+* **Styling:** Tailwind CSS, Shadcn UI, Radix UI
+* **Backend & Database:** Supabase with PostgreSQL
+* **State Management:** TanStack Query (React Query)
+* **Authentication:** Supabase Auth
 
-Authentication: Supabase Auth.
+---
 
-🔐 Authentication
-BuildSpace uses secure email-based authentication:
+## 🚀 Features
 
-Sign Up: Create an account using your email and a password (minimum 6 characters).
+* **Dark & Light Mode:** Fully themed UI for comfortable viewing at any time.
+* **Advanced Search & Filtering:** Filter projects by tech stack and developers by skills or name.
+* **Profile Sharing:** Unique, shareable URLs (`/profile/:username`) to showcase your portfolio.
+* **Interactive Feed:** A dynamic dashboard displaying new projects, team updates, and community opportunities.
+* **Project Management:** Create and join projects with specific tech stacks and detailed descriptions.
+* **Opportunity Board:** Browse or post "Hiring," "Looking for Teammates," or "Hackathon" openings.
 
-Sign In: Access your account with your email and password.
+---
 
-Password Reset: Request a reset link via email if you forget your credentials.
+## 📄 Pages Overview
 
-📄 Pages Overview
-Home (/): The main landing page and interactive activity feed.
+| Path | Description |
+| :--- | :--- |
+| `/` | **Home**: The main landing page and interactive activity feed. |
+| `/profiles` | **Profiles**: A directory to browse developers and filter by skills. |
+| `/profile/:username` | **Profile Detail**: A dedicated page for individual developer portfolios. |
+| `/projects` | **Projects**: A hub to discover projects by tech stack or title. |
+| `/opportunities` | **Opportunities**: A board for job roles and team formations. |
+| `/auth` | **Auth**: Unified page for login, registration, and password recovery. |
 
-Profiles (/profiles): A directory to browse developers and filter by skills.
+---
 
-Profile Detail (/profile/:username): A dedicated page for individual developer portfolios.
+## 🔐 Authentication
 
-Projects (/projects): A hub to discover projects by tech stack or title.
+BuildSpace uses secure email-based authentication via Supabase:
 
-Opportunities (/opportunities): A board for job roles and team formations.
+1.  **Sign Up:** Create an account using your email and a password (min. 6 characters).
+2.  **Sign In:** Access your account with your credentials.
+3.  **Password Reset:** Request a reset link via email if you forget your credentials.
 
-Auth (/auth): Unified page for login, registration, and password recovery.
-
-🚀 Features
-Dark Mode & Light Mode: Fully themed UI for comfortable viewing at any time.
-
-Search & Filtering: Advanced filtering for projects (by tech stack) and developers (by skills/name) to help you find exactly what you need.
-
-Profile Sharing: Each developer has a unique, shareable profile URL (/profile/:username) to showcase their skills and projects.
-
-Interactive Feed: A dynamic dashboard displaying new projects, team updates, and community opportunities.
-
-Project Management: Create and join projects with specific tech stacks and descriptions.
-
-Opportunity Board: Browse or post "Hiring," "Looking for Teammates," or "Hackathon" openings.
