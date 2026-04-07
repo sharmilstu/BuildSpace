@@ -5,78 +5,61 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useData } from "@/context/DataContext";
-import { Plus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const CreateProfileDialog = () => {
-  const { addDeveloper } = useData();
+  const { updateProfile } = useData();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState("");
   const [interests, setInterests] = useState("");
   const [github, setGithub] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => { setName(""); setUsername(""); setBio(""); setSkills(""); setInterests(""); setGithub(""); };
+  const handleOpen = (isOpen: boolean) => {
+    if (isOpen && !user) { navigate("/auth"); return; }
+    setOpen(isOpen);
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedUsername = username.trim();
     const trimmedBio = bio.trim();
-    if (!trimmedName || !trimmedUsername || !trimmedBio) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-    if (trimmedName.length > 100 || trimmedUsername.length > 50 || trimmedBio.length > 500) {
-      toast.error("One or more fields exceed the maximum length.");
-      return;
-    }
+    if (!trimmedBio) { toast.error("Please add a bio."); return; }
     const skillList = skills.split(",").map(s => s.trim()).filter(Boolean).slice(0, 10);
+    if (skillList.length === 0) { toast.error("Please add at least one skill."); return; }
     const interestList = interests.split(",").map(s => s.trim()).filter(Boolean).slice(0, 10);
-    if (skillList.length === 0) {
-      toast.error("Please add at least one skill.");
-      return;
-    }
-    addDeveloper({
-      name: trimmedName,
-      username: trimmedUsername,
-      avatar: `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(trimmedName)}`,
-      bio: trimmedBio,
-      skills: skillList,
-      interests: interestList,
-      projects: [],
-      github: github.trim() || undefined,
-    });
-    toast.success("Profile created!");
-    reset();
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      await updateProfile({
+        bio: trimmedBio,
+        skills: skillList,
+        interests: interestList,
+        github: github.trim() || null,
+      });
+      toast.success("Profile updated!");
+      setOpen(false);
+    } catch { toast.error("Failed to update profile."); }
+    setSubmitting(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="gap-1.5">
-          <Plus className="h-4 w-4" /> Create Profile
+          <Pencil className="h-4 w-4" /> Edit Profile
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Profile</DialogTitle>
-          <DialogDescription>Join the BuildSpace community.</DialogDescription>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription>Update your skills, bio, and interests.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Name *</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" maxLength={100} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="username">Username *</Label>
-              <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="jane_dev" maxLength={50} />
-            </div>
-          </div>
           <div className="space-y-1.5">
             <Label htmlFor="bio">Bio *</Label>
             <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself..." maxLength={500} rows={3} />
@@ -94,7 +77,9 @@ const CreateProfileDialog = () => {
             <Input id="github" value={github} onChange={(e) => setGithub(e.target.value)} placeholder="janedoe" maxLength={50} />
           </div>
           <DialogFooter>
-            <Button type="submit" className="w-full sm:w-auto">Create Profile</Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
+              {submitting ? "Saving..." : "Save Profile"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

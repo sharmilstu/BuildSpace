@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DataProvider } from "@/context/DataContext";
 import Navbar from "@/components/Navbar";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profiles from "./pages/Profiles";
 import Projects from "./pages/Projects";
 import Opportunities from "./pages/Opportunities";
@@ -23,6 +25,8 @@ const App = () => (
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profiles" element={<Profiles />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/opportunities" element={<Opportunities />} />

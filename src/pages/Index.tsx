@@ -2,11 +2,19 @@ import { useData } from "@/context/DataContext";
 import FeedItemCard from "@/components/FeedItemCard";
 import ProjectCard from "@/components/ProjectCard";
 import OpportunityCard from "@/components/OpportunityCard";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
-  const { feedItems, projects, opportunities } = useData();
+  const { feedItems, projects, opportunities, loading } = useData();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-6 sm:py-8">
@@ -23,11 +31,15 @@ const Index = () => {
         <div className="lg:col-span-2">
           <h2 className="mb-4 font-heading text-lg font-semibold">Activity Feed</h2>
           <div className="space-y-3">
-            {feedItems.map((item, i) => (
-              <div key={item.id} style={{ animationDelay: `${i * 60}ms` }}>
-                <FeedItemCard item={item} />
-              </div>
-            ))}
+            {feedItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No activity yet. Create a project or post an opportunity to get started!</p>
+            ) : (
+              feedItems.map((item, i) => (
+                <div key={item.id} style={{ animationDelay: `${i * 60}ms` }}>
+                  <FeedItemCard item={item} />
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -45,6 +57,9 @@ const Index = () => {
                   <ProjectCard project={project} />
                 </div>
               ))}
+              {projects.filter(p => p.status === "open").length === 0 && (
+                <p className="text-sm text-muted-foreground">No open projects yet.</p>
+              )}
             </div>
           </div>
 
@@ -61,6 +76,9 @@ const Index = () => {
                   <OpportunityCard opportunity={opp} />
                 </div>
               ))}
+              {opportunities.length === 0 && (
+                <p className="text-sm text-muted-foreground">No opportunities yet.</p>
+              )}
             </div>
           </div>
         </div>

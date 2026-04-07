@@ -1,8 +1,10 @@
-import type { Opportunity } from "@/data/mockData";
+import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Trophy, GitBranch, Briefcase, Users } from "lucide-react";
 
-const typeConfig = {
+type Opportunity = Tables<"opportunities">;
+
+const typeConfig: Record<string, { icon: typeof Trophy; label: string; className: string }> = {
   hackathon: { icon: Trophy, label: "Hackathon", className: "bg-primary/10 text-primary" },
   "open-source": { icon: GitBranch, label: "Open Source", className: "bg-success/10 text-success" },
   internship: { icon: Briefcase, label: "Internship", className: "bg-warning/10 text-warning" },
@@ -10,7 +12,7 @@ const typeConfig = {
 };
 
 const OpportunityCard = ({ opportunity }: { opportunity: Opportunity }) => {
-  const config = typeConfig[opportunity.type];
+  const config = typeConfig[opportunity.type] ?? typeConfig.hackathon;
   const Icon = config.icon;
 
   return (
@@ -30,14 +32,16 @@ const OpportunityCard = ({ opportunity }: { opportunity: Opportunity }) => {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {opportunity.tags.map((tag) => (
-          <Badge key={tag} variant="secondary" className="text-xs font-normal">{tag}</Badge>
-        ))}
-      </div>
+      {opportunity.tags && opportunity.tags.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {opportunity.tags.map((tag) => (
+            <Badge key={tag} variant="secondary" className="text-xs font-normal">{tag}</Badge>
+          ))}
+        </div>
+      )}
 
       <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-        <span>Posted by {opportunity.postedBy}</span>
+        <span>{new Date(opportunity.created_at).toLocaleDateString()}</span>
         {opportunity.deadline && (
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />

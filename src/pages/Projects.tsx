@@ -1,9 +1,10 @@
 import { useData } from "@/context/DataContext";
 import ProjectCard from "@/components/ProjectCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
+import { Loader2 } from "lucide-react";
 
 const Projects = () => {
-  const { projects } = useData();
+  const { projects, loading } = useData();
 
   return (
     <div className="container py-6 sm:py-8">
@@ -15,13 +16,21 @@ const Projects = () => {
         <CreateProjectDialog />
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project, i) => (
-          <div key={project.id} style={{ animationDelay: `${i * 60}ms` }}>
-            <ProjectCard project={project} />
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex min-h-[30vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : projects.length === 0 ? (
+        <p className="mt-6 text-sm text-muted-foreground">No projects yet. Create the first one!</p>
+      ) : (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project, i) => (
+            <div key={project.id} style={{ animationDelay: `${i * 60}ms` }}>
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
